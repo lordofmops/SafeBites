@@ -148,7 +148,7 @@
 				DEVELOPMENT_TEAM = GWV92276SN;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SafeBites/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "To scan barcodes";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Камера нужна для сканирования штрих-кодов продуктов";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -182,7 +182,7 @@
 				DEVELOPMENT_TEAM = GWV92276SN;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SafeBites/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "To scan barcodes";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Камера нужна для сканирования штрих-кодов продуктов";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
