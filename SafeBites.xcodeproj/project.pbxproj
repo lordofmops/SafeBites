@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		15783C122D485BB4000F1ED3 /* Exceptions for "SafeBites" folder in "SafeBites" target */ = {
+		151816052D4A42750065EABE /* Exceptions for "SafeBites" folder in "SafeBites" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -24,7 +24,7 @@
 		15783C022D485BB2000F1ED3 /* SafeBites */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				15783C122D485BB4000F1ED3 /* Exceptions for "SafeBites" folder in "SafeBites" target */,
+				151816052D4A42750065EABE /* Exceptions for "SafeBites" folder in "SafeBites" target */,
 			);
 			path = SafeBites;
 			sourceTree = "<group>";
@@ -67,7 +67,7 @@
 			buildPhases = (
 				15783BFC2D485BB2000F1ED3 /* Sources */,
 				15783BFD2D485BB2000F1ED3 /* Frameworks */,
-				15783BFE2D485BB2000F1ED3 /* Resources */,
+				151816042D4A42750065EABE /* Resources */,
 			);
 			buildRules = (
 			);
@@ -118,7 +118,7 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		15783BFE2D485BB2000F1ED3 /* Resources */ = {
+		151816042D4A42750065EABE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
