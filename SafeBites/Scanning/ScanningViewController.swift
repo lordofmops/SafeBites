@@ -1,11 +1,10 @@
 import UIKit
 import AVFoundation
 
-final class ScanningViewController: UIViewController {
+final class ScanningViewController: UIViewController,
+                                    ScanningView {
     // MARK: Private variables
-    // Camera functionality
-    private var captureSession: AVCaptureSession!
-    private var cameraPreviewLayer: AVCaptureVideoPreviewLayer!
+    private var presenter: ScanningPresenter!
     
     // UI elements
     private lazy var cameraView: UIView = {
@@ -28,6 +27,8 @@ final class ScanningViewController: UIViewController {
         button.setTitle("Сканировать штрих-код", for: .normal)
         button.titleLabel?.font = UIFont(name: "SourceSansPro-Regular", size: 16)
         button.titleLabel?.textAlignment = .center
+        
+        button.addTarget(self, action: #selector(didTapScanButton), for: .touchUpInside)
         
         return button
     }()
@@ -61,17 +62,28 @@ final class ScanningViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "Background")
         
+        presenter = ScanningPresenter(view: self)
+        
         setupCameraView()
         setupScanButton()
         setupDetailedInfoButton()
         setupAllergensTextView()
         
         updateAllergensInfo(text: ["Для отображения аллергенов отсканируйте штрих-код"])
+        
+        presenter.setupScanning {
+            DispatchQueue.main.async {
+                let cameraPreviewLayer = self.presenter.getPreviewLayer()
+                cameraPreviewLayer.frame = self.cameraView.bounds
+                self.cameraView.layer.addSublayer(cameraPreviewLayer)
+            }
+        }
+//        presenter.setupScanning()
     }
     
-    // MARK: Private functions
+    // MARK: UI setup
     // Updating information about allergens after scanning barcode
-    private func updateAllergensInfo(text: [String]) {
+    func updateAllergensInfo(text: [String]) {
         let fullText = NSMutableAttributedString()
         
         // Adding title
@@ -99,9 +111,11 @@ final class ScanningViewController: UIViewController {
         }
         
         detectedAllergensTextView.attributedText = fullText
+        view.layoutIfNeeded()
     }
     
     // Setup UI elements
+    // TODO: продумать, что делать, если пользователь не дает доступ к камере и остается на странице
     private func setupCameraView() {
         cameraView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(cameraView)
@@ -170,8 +184,16 @@ final class ScanningViewController: UIViewController {
             seeDetailedInfoButton.trailingAnchor.constraint(equalTo: cameraView.trailingAnchor)
         ])
     }
-}
-
-extension ScanningViewController : AVCaptureMetadataOutputObjectsDelegate {
     
+    // Button actions
+    @objc
+    private func didTapScanButton() {
+        presenter.didTapScanButton()
+    }
+    
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction((UIAlertAction(title: "ОК", style: .default)))
+        present(alert, animated: true)
+    }
 }
