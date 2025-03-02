@@ -40,6 +40,14 @@ final class ScanningViewController: UIViewController,
         textView.layer.masksToBounds = true
         textView.textContainerInset = UIEdgeInsets(top: 19, left: 16, bottom: 10, right: 16)
         
+        let fullText = NSMutableAttributedString()
+        let line = NSAttributedString(string: "Для проверки продукта отсканируйте штрих-код", attributes: [
+            .font: UIFont(name: "SourceSansPro-Regular", size: 20)!,
+            .foregroundColor: UIColor(named: "White") ?? .white
+        ])
+        fullText.append(line)
+        textView.attributedText = fullText
+        
         return textView
     }()
     private lazy var seeDetailedInfoButton: UIButton = {
@@ -69,13 +77,12 @@ final class ScanningViewController: UIViewController,
         setupDetailedInfoButton()
         setupAllergensTextView()
         
-        updateAllergensInfo(text: ["Для отображения аллергенов отсканируйте штрих-код"])
-        
         presenter.setupScanning {
             DispatchQueue.main.async {
                 let cameraPreviewLayer = self.presenter.getPreviewLayer()
                 cameraPreviewLayer.frame = self.cameraView.bounds
                 self.cameraView.layer.addSublayer(cameraPreviewLayer)
+                print("Camera preview layer added: \(cameraPreviewLayer != nil)")
             }
         }
 //        presenter.setupScanning()
@@ -83,35 +90,56 @@ final class ScanningViewController: UIViewController,
     
     // MARK: UI setup
     // Updating information about allergens after scanning barcode
-    func updateAllergensInfo(text: [String]) {
+    func updateAllergensInfo(for product: Allergens) {
+        let name = product.name
+        let allergens = product.allergens
+        
         let fullText = NSMutableAttributedString()
         
         // Adding title
-        let titleAttributed = NSAttributedString(string: "Найденные аллергены: \n\n", attributes: [
+        let titleAttributed = NSAttributedString(string: "\(name) \nНайденные аллергены: \n\n", attributes: [
             .font: UIFont(name: "SourceSansPro-Bold", size: 20)!,
             .foregroundColor: UIColor(named: "White") ?? .white
         ])
         fullText.append(titleAttributed)
         
-        // Exclamation triangle icon
-        let exclamationAttachment = NSTextAttachment()
-        exclamationAttachment.image = UIImage(systemName: "exclamationmark.triangle.fill")?.withTintColor(UIColor(named: "Red") ?? .red)
-        exclamationAttachment.bounds = CGRect(x: 0, y: -4, width: 18, height: 16)
-        let icon = NSAttributedString(attachment: exclamationAttachment)
-        
-        for line in text {
-            // Adding icon before each line
-            fullText.append(icon)
+        switch allergens.isEmpty {
+        case true:
+            let carrotAttachment = NSTextAttachment()
+            carrotAttachment.image = UIImage(systemName: "carrot.fill")?.withTintColor(.orange)
+            carrotAttachment.bounds = CGRect(x: 0, y: -4, width: 18, height: 16)
+            let carrotIcon = NSAttributedString(attachment: carrotAttachment)
             
-            let line = NSAttributedString(string: " \(line)\n", attributes: [
+            fullText.append(carrotIcon)
+            
+            let line = NSAttributedString(string: " Данный продукт не содержит аллергенов :)", attributes: [
                 .font: UIFont(name: "SourceSansPro-Regular", size: 16)!,
                 .foregroundColor: UIColor(named: "White") ?? .white
             ])
             fullText.append(line)
+            detectedAllergensTextView.attributedText = fullText
+            view.layoutIfNeeded()
+            return
+        case false:
+            let exclamationAttachment = NSTextAttachment()
+            exclamationAttachment.image = UIImage(systemName: "exclamationmark.triangle.fill")?.withTintColor(UIColor(named: "Red") ?? .red)
+            exclamationAttachment.bounds = CGRect(x: 0, y: -4, width: 18, height: 16)
+            let icon = NSAttributedString(attachment: exclamationAttachment)
+            
+            for line in allergens {
+                // Adding icon before each line
+                fullText.append(icon)
+                
+                let line = NSAttributedString(string: " \(line)\n", attributes: [
+                    .font: UIFont(name: "SourceSansPro-Regular", size: 16)!,
+                    .foregroundColor: UIColor(named: "White") ?? .white
+                ])
+                fullText.append(line)
+            }
+            
+            detectedAllergensTextView.attributedText = fullText
+            view.layoutIfNeeded()
         }
-        
-        detectedAllergensTextView.attributedText = fullText
-        view.layoutIfNeeded()
     }
     
     // Setup UI elements

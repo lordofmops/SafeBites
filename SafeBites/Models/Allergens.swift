@@ -8,6 +8,7 @@ struct Allergens {
 extension Allergens {
     init(from allergensResult: AllergensResult) {
         self.allergens = allergensResult.allergens
-        self.name = [allergensResult.brand, allergensResult.name].compactMap { $0 }.joined(separator: " ")
+//        self.name = [allergensResult.brand, allergensResult.name].compactMap { $0 }.joined(separator: " ")
+        self.name = allergensResult.name
     }
 }

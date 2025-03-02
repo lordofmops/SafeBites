@@ -19,7 +19,7 @@ final class ProductScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate, Pr
     static let shared = ProductScanner()
     
     private var captureSession: AVCaptureSession!
-    private var hasScanned: Bool = false
+    private var hasScanned: Bool = true
     
     var isCameraAuthorized: Bool = false
     weak var delegate: ProductScannerDelegate?
@@ -29,6 +29,7 @@ final class ProductScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate, Pr
     
     func setupCamera(completion: @escaping () -> Void) {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
+        
         if status != .authorized {
             AVCaptureDevice.requestAccess(for: .video) { response in
                 self.isCameraAuthorized = response
@@ -55,18 +56,12 @@ final class ProductScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate, Pr
     }
     
     func scanProduct() {
-        setupCaptureSession()
-        hasScanned = false
-        let metadataOutput = AVCaptureMetadataOutput()
-        metadataOutput.metadataObjectTypes = [.ean8, .ean13, .pdf417]
-        if captureSession.canAddOutput(metadataOutput) {
-            captureSession.addOutput(metadataOutput)
-            
-            metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-        } else {
-            delegate?.didFailScanning(with: "Штрих-код не распознан")
+        guard let captureSession, captureSession.isRunning  else {
+            delegate?.didFailScanning(with: "Сессия захвата не запущена")
             return
         }
+        
+        hasScanned = false
     }
     
     // MARK: AVCaptureMetadataOutputObjectsDelegate
@@ -74,6 +69,7 @@ final class ProductScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate, Pr
         if !hasScanned,
             let metadataObject = metadataObjects.first as? AVMetadataMachineReadableCodeObject,
             let barcode = metadataObject.stringValue {
+            print("Barcode: \(barcode)")
             hasScanned = true
             delegate?.didScanBarcode(barcode)
             AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
@@ -82,6 +78,8 @@ final class ProductScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate, Pr
 
     // TODO: возможно можно разделить на первичное и рестарт сессии
     private func setupCaptureSession() {
+        guard captureSession == nil else { return }
+        
         captureSession = AVCaptureSession()
         
         guard let backCamera = AVCaptureDevice.default(for: .video),
@@ -110,13 +108,13 @@ final class ProductScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate, Pr
         }
         
         DispatchQueue.main.async {
-            self.cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+            self.cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
             self.cameraPreviewLayer.videoGravity = .resizeAspectFill
-            self.delegate?.getPreviewLayer().addSublayer(self.cameraPreviewLayer)
+            
+            if self.captureSession?.isRunning == false {
+                self.captureSession.startRunning()
+            }
         }
-        
-        DispatchQueue.main.async {
-            captureSession.startRunning()
-        }
+        print("Capture session is running: \(captureSession.isRunning)")
     }
 }

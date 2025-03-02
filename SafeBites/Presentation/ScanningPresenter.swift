@@ -1,18 +1,19 @@
 import AVFoundation
 
 protocol ScanningView: AnyObject {
-    func updateAllergensInfo(text: [String])
+    func updateAllergensInfo(for: Allergens)
     func showAlert(title: String, message: String)
 }
 
 final class ScanningPresenter: ProductScannerDelegate {
     private weak var view: ScanningView?
-    private let productLoader: ProductLoading = ProductLoader()
-    private lazy var scanner: ProductScanner = ProductScanner(delegate: self)
+    private let productLoader: ProductLoading = ProductLoader.shared
+    private lazy var scanner: ProductScanner = ProductScanner.shared
     private var hasScanned = true
     
     init(view: ScanningView) {
         self.view = view
+        scanner.delegate = self
     }
     
     func setupScanning(completion: @escaping () -> Void) {
@@ -32,12 +33,12 @@ final class ScanningPresenter: ProductScannerDelegate {
     
     // MARK: ProductScannerDelegate
     func didScanBarcode(_ barcode: String) {
-        productLoader.loadAllergens(for: barcode) { [weak self] result in
+        productLoader.fetchAllergens(for: barcode) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 switch result {
                 case .success(let product):
-                    self.view?.updateAllergensInfo(text: product.allergens)
+                    self.view?.updateAllergensInfo(for: product)
                 case .failure(let error):
                     self.view?.showAlert(title: "Не получилось отсканировать код :(", message: "Ошибка загрузки данных")
                 }
