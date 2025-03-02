@@ -1,39 +1,66 @@
 import Foundation
 
 protocol ProductLoading {
-    func loadAllergens(for barcode: String, handler: @escaping (Result<ProductAllergens, Error>) -> Void)
+    func fetchAllergens(for barcode: String, completion: @escaping (Result<Allergens, Error>) -> Void)
 }
 
-struct ProductLoader: ProductLoading {
-    // MARK: Network client
-    private let networkClient: NetworkRouting
+final class ProductLoader: ProductLoading {
+    static let shared = ProductLoader()
     
-    init(networkClient: NetworkRouting = NetworkClient()) {
-        self.networkClient = networkClient
+    private var task: URLSessionTask?
+    private var lastCode: String?
+    
+    private init() {}
+    
+    func fetchAllergens(for barcode: String, completion: @escaping (Result<Allergens, Error>) -> Void) {
+        assert(Thread.isMainThread)
+        guard lastCode != barcode else {
+            print("Allergens request already in progress with the same barcode")
+            completion(.failure(NetworkError.invalidRequest))
+            return
+        }
+
+        task?.cancel()
+        lastCode = barcode
+        
+        guard
+            let request = makeAllergensRequest(barcode: barcode)
+        else {
+            print("Failed to make allergens request")
+            completion(.failure(NetworkError.invalidRequest))
+            return
+        }
+        
+        let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<AllergensResult, Error>) in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                
+                switch result {
+                case .success(let response):
+                    let allergens = Allergens(from: response)
+                    completion(.success(allergens))
+                case .failure(let error):
+                    print("Network request failed: \(error)")
+                    completion(.failure(error))
+                }
+                
+                self.task = nil
+                self.lastCode = nil
+            }
+        }
+        self.task = task
+        task.resume()
     }
     
     // MARK: URL
-    private var allergensURL: URL {
-        guard let url = URL(string: "https://world.openfoodfacts.org/api/v0/product") else {
-            preconditionFailure("Unable to construct allergensURL")
+    func makeAllergensRequest(barcode: String) -> URLRequest? {
+        guard let url = URL(string: "https://world.openfoodfacts.org/api/v0/product/\(barcode).json") else {
+            print( "Failed to create allergensURL")
+            return nil
         }
-        return url
-    }
-    
-    func loadAllergens(for barcode: String, handler: @escaping (Result<ProductAllergens, any Error>) -> Void) {
-        let url = allergensURL.appendingPathComponent(barcode).appendingPathExtension("json")
-        networkClient.fetch(url: url) { result in
-            switch result {
-            case .success(let data):
-                do {
-                    let productAllergens = try JSONDecoder().decode(ProductAllergens.self, from: data)
-                    handler(.success(productAllergens))
-                } catch {
-                    handler(.failure(error))
-                }
-            case .failure(let error):
-                handler(.failure(error))
-            }
-        }
-    }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        return request
+     }
 }

@@ -16,6 +16,8 @@ protocol ProductScanning {
 }
 
 final class ProductScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate, ProductScanning {
+    static let shared = ProductScanner()
+    
     private var captureSession: AVCaptureSession!
     private var hasScanned: Bool = false
     
@@ -23,10 +25,7 @@ final class ProductScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate, Pr
     weak var delegate: ProductScannerDelegate?
     var cameraPreviewLayer: AVCaptureVideoPreviewLayer!
     
-    init(delegate: ProductScannerDelegate) {
-        super.init()
-        self.delegate = delegate
-    }
+    private override init() {}
     
     func setupCamera(completion: @escaping () -> Void) {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
@@ -85,14 +84,13 @@ final class ProductScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate, Pr
     private func setupCaptureSession() {
         captureSession = AVCaptureSession()
         
-        guard let backCameraDevice = AVCaptureDevice.default(for: .video) else { return }
-        
-        let input: AVCaptureDeviceInput
-        do {
-            input = try AVCaptureDeviceInput(device: backCameraDevice)
-        } catch {
+        guard let backCamera = AVCaptureDevice.default(for: .video),
+              let input = try? AVCaptureDeviceInput(device: backCamera) else {
+            delegate?.didFailScanning(with: "Камера недоступна")
             return
         }
+        
+        guard let captureSession else { return }
         
         if captureSession.canAddInput(input) {
             captureSession.addInput(input)
@@ -100,14 +98,25 @@ final class ProductScanner: NSObject, AVCaptureMetadataOutputObjectsDelegate, Pr
             delegate?.didFailScanning(with: "Ваше устройство не поддерживает сканирование")
             return
         }
-        
-        DispatchQueue.main.async {
-            self.cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
-            self.cameraPreviewLayer.videoGravity = .resizeAspectFill
+
+        let metadataOutput = AVCaptureMetadataOutput()
+        if captureSession.canAddOutput(metadataOutput) {
+            captureSession.addOutput(metadataOutput)
+            metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+            metadataOutput.metadataObjectTypes = [.ean8, .ean13, .pdf417]
+        } else {
+            delegate?.didFailScanning(with: "Штрих-код не распознан")
+            return
         }
         
-        DispatchQueue.global().async {
-            self.captureSession.startRunning()
+        DispatchQueue.main.async {
+            self.cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+            self.cameraPreviewLayer.videoGravity = .resizeAspectFill
+            self.delegate?.getPreviewLayer().addSublayer(self.cameraPreviewLayer)
+        }
+        
+        DispatchQueue.main.async {
+            captureSession.startRunning()
         }
     }
 }
