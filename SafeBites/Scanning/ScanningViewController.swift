@@ -13,14 +13,14 @@ final class ScanningViewController: UIViewController,
         view.layer.cornerRadius = 24
         view.layer.masksToBounds = true
         
-        view.backgroundColor = UIColor(named: "Black")
+        view.backgroundColor = .sbBlack
         
         return view
     }()
     private lazy var scanButton: UIButton = {
         let button = UIButton()
         
-        button.backgroundColor = UIColor(named: "Black")
+        button.backgroundColor = .sbBlack
         button.layer.cornerRadius = 24
         button.layer.masksToBounds = true
         
@@ -35,7 +35,7 @@ final class ScanningViewController: UIViewController,
     private lazy var detectedAllergensTextView: UITextView = {
         let textView = UITextView()
         
-        textView.backgroundColor = UIColor(named: "Gray")
+        textView.backgroundColor = .sbGray
         textView.layer.cornerRadius = 24
         textView.layer.masksToBounds = true
         textView.textContainerInset = UIEdgeInsets(top: 19, left: 16, bottom: 10, right: 16)
@@ -53,14 +53,14 @@ final class ScanningViewController: UIViewController,
     private lazy var seeDetailedInfoButton: UIButton = {
         let button = UIButton()
         
-        button.backgroundColor = UIColor(named: "Silver")
+        button.backgroundColor = .sbSilver
         button.layer.cornerRadius = 24
         button.layer.masksToBounds = true
         
         button.setTitle("Посмотреть полную информацию", for: .normal)
         button.titleLabel?.font = UIFont(name: "SourceSansPro-Regular", size: 16)
         button.titleLabel?.textAlignment = .center
-        button.setTitleColor(UIColor(named: "Background"), for: .normal)
+        button.setTitleColor(.sbBackground, for: .normal)
         
         return button
     }()
@@ -68,7 +68,7 @@ final class ScanningViewController: UIViewController,
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "Background")
+        view.backgroundColor = .sbBackground
         
         presenter = ScanningPresenter(view: self)
         
@@ -82,7 +82,7 @@ final class ScanningViewController: UIViewController,
                 let cameraPreviewLayer = self.presenter.getPreviewLayer()
                 cameraPreviewLayer.frame = self.cameraView.bounds
                 self.cameraView.layer.addSublayer(cameraPreviewLayer)
-                print("Camera preview layer added: \(cameraPreviewLayer != nil)")
+                print("Camera preview layer added: \(cameraPreviewLayer.isPreviewing)")
             }
         }
 //        presenter.setupScanning()
@@ -97,7 +97,7 @@ final class ScanningViewController: UIViewController,
         let fullText = NSMutableAttributedString()
         
         // Adding title
-        let titleAttributed = NSAttributedString(string: "\(name) \nНайденные аллергены: \n\n", attributes: [
+        let titleAttributed = NSAttributedString(string: "\(name ?? "Найденные аллергены:") \n\n", attributes: [
             .font: UIFont(name: "SourceSansPro-Bold", size: 20)!,
             .foregroundColor: UIColor(named: "White") ?? .white
         ])
@@ -114,7 +114,7 @@ final class ScanningViewController: UIViewController,
             
             let line = NSAttributedString(string: " Данный продукт не содержит аллергенов :)", attributes: [
                 .font: UIFont(name: "SourceSansPro-Regular", size: 16)!,
-                .foregroundColor: UIColor(named: "White") ?? .white
+                .foregroundColor: UIColor.sbWhite
             ])
             fullText.append(line)
             detectedAllergensTextView.attributedText = fullText
@@ -122,7 +122,7 @@ final class ScanningViewController: UIViewController,
             return
         case false:
             let exclamationAttachment = NSTextAttachment()
-            exclamationAttachment.image = UIImage(systemName: "exclamationmark.triangle.fill")?.withTintColor(UIColor(named: "Red") ?? .red)
+            exclamationAttachment.image = UIImage(systemName: "exclamationmark.triangle.fill")?.withTintColor(.sbRed)
             exclamationAttachment.bounds = CGRect(x: 0, y: -4, width: 18, height: 16)
             let icon = NSAttributedString(attachment: exclamationAttachment)
             
@@ -132,7 +132,7 @@ final class ScanningViewController: UIViewController,
                 
                 let line = NSAttributedString(string: " \(line)\n", attributes: [
                     .font: UIFont(name: "SourceSansPro-Regular", size: 16)!,
-                    .foregroundColor: UIColor(named: "White") ?? .white
+                    .foregroundColor: UIColor.sbWhite
                 ])
                 fullText.append(line)
             }
@@ -158,7 +158,7 @@ final class ScanningViewController: UIViewController,
         
         let cameraIcon = UIImageView(image: UIImage(systemName: "camera.fill"))
         
-        cameraIcon.tintColor = UIColor(named: "White")
+        cameraIcon.tintColor = .sbWhite
         cameraIcon.contentMode = .scaleAspectFit
         
         cameraIcon.translatesAutoresizingMaskIntoConstraints = false

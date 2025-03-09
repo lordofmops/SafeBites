@@ -1,7 +1,7 @@
 import Foundation
 
 struct AllergensResult: Decodable {
-    let allergens: [String]?
+    let allergens: [String]
     let name: String?
     
     private enum CodingKeys: String, CodingKey {
