@@ -6,8 +6,8 @@ struct Allergens {
 }
 
 extension Allergens {
-    init(from allergensResult: AllergensResult) {
-        self.allergens = allergensResult.allergens
-        self.name = allergensResult.name
+    init(from allergensResponseBody: AllergensResponseBody) {
+        self.allergens = allergensResponseBody.allergens
+        self.name = allergensResponseBody.name
     }
 }

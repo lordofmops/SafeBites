@@ -40,7 +40,7 @@ final class ScanningPresenter: ProductScannerDelegate {
                 case .success(let product):
                     self.view?.updateAllergensInfo(for: product)
                 case .failure(let error):
-                    self.view?.showAlert(title: "Не получилось отсканировать код :(", message: "Ошибка загрузки данных")
+                    self.didFailScanning(with: "Ошибка загрузки данных")
                 }
             }
         }

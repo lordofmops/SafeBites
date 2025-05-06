@@ -31,7 +31,7 @@ final class ProductLoader: ProductLoading {
             return
         }
         
-        let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<AllergensResult, Error>) in
+        let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<AllergensResponseBody, Error>) in
             DispatchQueue.main.async {
                 guard let self else { return }
                 
@@ -55,13 +55,14 @@ final class ProductLoader: ProductLoading {
     
     // MARK: URL
     func makeAllergensRequest(barcode: String) -> URLRequest? {
-        guard let url = URL(string: "https://world.openfoodfacts.org/api/v0/product/\(barcode).json") else {
+        guard let url = URL(string: Constants.defaultBaseURL + "product/\(barcode).json") else {
             print( "Failed to create allergensURL")
             return nil
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
+        request.setValue("SafeBites/1.0 (dadrobysheva@edu.hse.ru)", forHTTPHeaderField: "User-Agent")
         return request
      }
 }
