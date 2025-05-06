@@ -1,5 +1,10 @@
 import UIKit
 
+protocol AuthViewProtocol: AnyObject {
+    func showAuthErrorAlert(message: String)
+    func didAuthenticated(token: String)
+}
+
 final class AuthViewController: UIViewController {
     // MARK: UI elements
     private lazy var logoLabel: UILabel = {
@@ -111,28 +116,47 @@ final class AuthViewController: UIViewController {
         return button
     }()
     
+    private var presenter: AuthPresenterProtocol?
+    
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .sbBackground
+        presenter = AuthPresenter(authVC: self)
         
+        view.backgroundColor = .sbBackground
         setupLabels()
         setupLoginForm()
         setupButtons()
+        setupBackwardButton()
     }
     
     // MARK: Button actions
     @objc
     private func didTapLoginButton() {
+        guard let email = emailTextField.text, !email.isEmpty, let password = passwordTextField.text, !password.isEmpty else {
+            showAuthErrorAlert(message: "Заполните все поля")
+            print("[ERROR] [AuthViewController/didTapLoginButton] Empty fields in login form")
+            return
+        }
         
+        presenter?.login(email: email, password: password)
     }
     
     @objc
     private func didTapRegisterButton() {
+        let registrationScreen = RegistrationViewController()
         
+        navigationController?.pushViewController(registrationScreen, animated: true)
     }
     
     // MARK: UI setup
+    private func setupBackwardButton() {
+        navigationController?.navigationBar.backIndicatorImage = UIImage(named: "back_button_black")
+        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: "back_button_black")
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        navigationItem.backBarButtonItem?.tintColor = .sbSilver
+    }
+    
     private func setupLabels() {
         logoLabel.translatesAutoresizingMaskIntoConstraints = false
         welcomeLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -204,5 +228,19 @@ final class AuthViewController: UIViewController {
             registerButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
             registerButton.heightAnchor.constraint(equalToConstant: 48)
         ])
+    }
+}
+
+extension AuthViewController: AuthViewProtocol {
+    func showAuthErrorAlert(message: String) {
+        let alert = UIAlertController(title: "Ошибка :(", message: message, preferredStyle: .alert)
+        alert.addAction((UIAlertAction(title: "ОК", style: .default)))
+        present(alert, animated: true)
+    }
+    
+    func didAuthenticated(token: String) {
+        let scanningView = ScanningViewController()
+        
+        navigationController?.pushViewController(scanningView, animated: true)
     }
 }
