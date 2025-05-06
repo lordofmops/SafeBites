@@ -1,5 +1,10 @@
 import UIKit
 
+protocol RegistrationViewProtocol: AnyObject {
+    func showRegistrationErrorAlert(message: String)
+    func didRegister(user: User, token: String)
+}
+
 final class RegistrationViewController: UIViewController {
     // MARK: UI elements
     private lazy var logoLabel: UILabel = {
@@ -22,7 +27,7 @@ final class RegistrationViewController: UIViewController {
         let textField = UITextField()
         textField.font = UIFont(name: "SourceSansPro-Regular", size: 16)
         textField.attributedPlaceholder = NSAttributedString(
-            string: "Имя пользователя",
+            string: "Имя (опционально)",
             attributes: [.foregroundColor: UIColor.sbSilver.withAlphaComponent(0.5)]
         )
         textField.textColor = .sbSilver
@@ -36,7 +41,6 @@ final class RegistrationViewController: UIViewController {
         textField.leftViewMode = .always
         
         textField.textContentType = .nickname
-        textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
         
         return textField
@@ -128,11 +132,14 @@ final class RegistrationViewController: UIViewController {
         return button
     }()
     
+    private var presenter: RegistrationPresenterProtocol?
+    
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .sbBackground
+        presenter = RegistrationPresenter(registrationVC: self)
         
+        view.backgroundColor = .sbBackground
         setupLabels()
         setupRegisterForm()
         setupRegisterButton()
@@ -141,7 +148,22 @@ final class RegistrationViewController: UIViewController {
     // MARK: Button actions
     @objc
     private func didTapRegisterButton() {
+        guard let email = emailTextField.text, !email.isEmpty,
+              let password = passwordTextField.text, !password.isEmpty,
+              let confirmPassword = confirmPasswordTextField.text, !confirmPassword.isEmpty,
+              let name = nicknameTextField.text else {
+            showRegistrationErrorAlert(message: "Заполните все обязательные поля")
+            print("[ERROR] [RegistrationViewController/didTapRegisterButton] Empty fields in registration form")
+            return
+        }
         
+        if confirmPassword != password {
+            showRegistrationErrorAlert(message: "Пароли не совпадают")
+            print("[ERROR] [RegistrationViewController/didTapRegisterButton] Passwords do not match")
+            return
+        }
+        
+        presenter?.register(email: email, password: password, name: name)
     }
     
     // MARK: UI setup
@@ -212,3 +234,18 @@ final class RegistrationViewController: UIViewController {
     }
 }
 
+extension RegistrationViewController: RegistrationViewProtocol {
+    func didRegister(user: User, token: String) {
+        guard let window = UIApplication.shared.windows.first else {
+            print("[ERROR] [RegistrationViewController/didRegister]: Invalid window configuration")
+            return
+        }
+        window.rootViewController = UINavigationController(rootViewController: ScanningViewController())
+    }
+    // TODO: при нажатии на кнопку вообще ничего не происходит
+    func showRegistrationErrorAlert(message: String) {
+        let alert = UIAlertController(title: "Ошибка :(", message: message, preferredStyle: .alert)
+        alert.addAction((UIAlertAction(title: "Попробовать еще раз", style: .default)))
+        present(alert, animated: true)
+    }
+}

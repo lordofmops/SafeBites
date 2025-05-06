@@ -1,16 +1,19 @@
 import Foundation
 
-final class AuthService {
+protocol AuthServiceProtocol {
+    func login(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void)
+}
+
+final class AuthService: AuthServiceProtocol {
     static let shared = AuthService()
     
     private let authTokenStorage = AuthTokenStorage.shared
-    private let authTokenKey = "authToken"
     
     private init() {}
     
     func login(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
         guard let url = URL(string: Constants.defaultBaseApiUrl + Constants.loginRoute) else {
-            print("[ERROR] [AuthService/login]: Failed to create URLComponents")
+            print("[ERROR] [AuthService/login]: Failed to create URL")
             completion(.failure(NetworkError.invalidRequest))
             return
         }
@@ -23,8 +26,8 @@ final class AuthService {
             request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
         } catch(let error) {
             print("[ERROR] [AuthService/login] Failed to serialize request body: \(error)")
+            completion(.failure(NetworkError.message("Failed to serialize login request body: \(error)")))
         }
-        
         
         let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<AuthResponseBody, Error>) in
             DispatchQueue.main.async {

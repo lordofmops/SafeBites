@@ -27,7 +27,7 @@ final class AuthPresenter: AuthPresenterProtocol {
                 case .success(let token):
                     self.authVC?.didAuthenticated(token: token)
                 case .failure(let error):
-                    self.authVC?.showAuthErrorAlert(message: error.localizedDescription)
+                    self.authVC?.showAuthErrorAlert(message: "Что-то пошло не так")
                 }
             }
         }

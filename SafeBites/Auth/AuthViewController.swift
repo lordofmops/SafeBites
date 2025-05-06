@@ -234,13 +234,15 @@ final class AuthViewController: UIViewController {
 extension AuthViewController: AuthViewProtocol {
     func showAuthErrorAlert(message: String) {
         let alert = UIAlertController(title: "Ошибка :(", message: message, preferredStyle: .alert)
-        alert.addAction((UIAlertAction(title: "ОК", style: .default)))
+        alert.addAction((UIAlertAction(title: "Попробовать еще раз", style: .default)))
         present(alert, animated: true)
     }
     
     func didAuthenticated(token: String) {
-        let scanningView = ScanningViewController()
-        
-        navigationController?.pushViewController(scanningView, animated: true)
+        guard let window = UIApplication.shared.windows.first else {
+            print("[ERROR] [AuthViewController/didAuthenticated]: Invalid window configuration")
+            return
+        }
+        window.rootViewController = UINavigationController(rootViewController: ScanningViewController())
     }
 }
