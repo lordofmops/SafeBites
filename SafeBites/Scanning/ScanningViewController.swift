@@ -97,7 +97,7 @@ final class ScanningViewController: UIViewController,
     func updateAllergensInfo(for product: Allergens, code: String) {
         self.barcode = code
         let name = product.name
-        let allergens = product.allergens
+        let allergens = product.allergensNames
         
         let fullText = NSMutableAttributedString()
         

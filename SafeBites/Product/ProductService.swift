@@ -50,7 +50,7 @@ final class ProductService: ProductServiceProtocol {
                 
                 switch result {
                 case .success(let response):
-                    var product = Product(from: response)
+                    let product = Product(from: response)
                     self.product = product
                     if let token = self.authTokenStorage.token {
                         self.checkProductSuitability(for: token, product: product) { updatedProduct in
@@ -84,7 +84,7 @@ final class ProductService: ProductServiceProtocol {
                 
                 switch result {
                 case .success(let userRestrictions):
-                    if !userRestrictions.isEmpty, let allergens = product.allergens {
+                    if !userRestrictions.isEmpty, let allergens = product.allergensTags {
                         let allergyRestrictions = userRestrictions.filter { $0.type == "allergen" }
                         let conflictAllergens = allergyRestrictions.filter { allergens.contains($0.tag) }
                         

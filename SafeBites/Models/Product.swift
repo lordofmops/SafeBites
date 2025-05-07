@@ -2,6 +2,7 @@ import Foundation
 
 struct Product {
     let barcode: String
+    let allergensTags: [String]?
     let allergens: [String]?
     let name: String?
     let quantity: String?
@@ -19,7 +20,10 @@ struct Product {
 extension Product {
     init(from productResponseBody: ProductResponseBody, isFavorite: Bool? = nil, doesMatchRestrictions: Bool? = nil, unmatchedTags: [String]? = nil) {
         self.barcode = productResponseBody.code
-        self.allergens = productResponseBody.allergens
+        self.allergensTags = productResponseBody.allergens
+        self.allergens = productResponseBody.allergens != nil
+            ? AllergenName.getAllergensName(productResponseBody.allergens!)
+            : nil
         self.name = productResponseBody.russianName != nil
             ? productResponseBody.russianName
             : productResponseBody.defaultName

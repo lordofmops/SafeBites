@@ -39,7 +39,7 @@ final class ProductLoader: ProductLoading {
                 case .success(let response):
                     let allergens = Allergens(from: response)
                     completion(.success(allergens))
-                    print("Product for barcode \(barcode): \(allergens.name), allergens: \(allergens.allergens)")
+                    print("Product for barcode \(barcode): \(allergens.name), allergens: \(allergens.allergensNames)")
                 case .failure(let error):
                     print("Network request failed: \(error)")
                     completion(.failure(error))
