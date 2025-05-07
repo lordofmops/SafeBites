@@ -21,6 +21,7 @@ final class RegistrationPresenter: RegistrationPresenterProtocol {
         
         registrationService.register(email: email, password: password, name: name) { [weak self] result in
             guard let self else {
+                UIBlockingProgressHUD.dismiss()
                 return
             }
             
