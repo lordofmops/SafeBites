@@ -6,7 +6,7 @@ struct ProductResponseBody: Decodable {
     let defaultName: String?
     let russianName: String?
     let quantity: String?
-    let brands: String?
+    let brand: String?
     let categories: [String]?
     let imageUrl: String?
     let ingredientsText: String?
@@ -31,7 +31,7 @@ struct ProductResponseBody: Decodable {
         case defaultName = "product_name"
         case russianName = "product_name_ru"
         case quantity
-        case brands
+        case brand = "brands"
         case categories = "categories_hierarchy"
         case imageUrl = "image_url"
         case ingredientsText = "ingredients_text"
@@ -57,7 +57,7 @@ struct ProductResponseBody: Decodable {
         self.defaultName = try productContainer.decodeIfPresent(String.self, forKey: .defaultName)
         self.russianName = try productContainer.decodeIfPresent(String.self, forKey: .russianName)
         self.quantity = try productContainer.decodeIfPresent(String.self, forKey: .quantity)
-        self.brands = try productContainer.decodeIfPresent([String].self, forKey: .brands)
+        self.brand = try productContainer.decodeIfPresent(String.self, forKey: .brand)
         self.categories = try productContainer.decodeIfPresent([String].self, forKey: .categories)
         self.imageUrl = try productContainer.decodeIfPresent(String.self, forKey: .imageUrl)
         self.ingredientsText = try productContainer.decodeIfPresent(String.self, forKey: .ingredientsText)

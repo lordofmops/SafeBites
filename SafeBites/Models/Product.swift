@@ -30,8 +30,8 @@ extension Product {
             fiber: productResponseBody.fiber,
             proteins: productResponseBody.proteins,
             salt: productResponseBody.salt)
-        self.brand = productResponseBody.brands != nil
-            ? productResponseBody.brands![0]
+        self.brand = productResponseBody.brand != nil
+            ? productResponseBody.brand
             : nil
         self.categories = productResponseBody.categories
         self.imageUrl = productResponseBody.imageUrl
