@@ -5,8 +5,9 @@ final class ScanningViewController: UIViewController,
                                     ScanningView {
     // MARK: Private variables
     private var presenter: ScanningPresenter!
+    private var barcode: String?
     
-    // UI elements
+    // MARK: UI elements
     private lazy var cameraView: UIView = {
         let view = UIView()
         
@@ -62,6 +63,8 @@ final class ScanningViewController: UIViewController,
         button.titleLabel?.textAlignment = .center
         button.setTitleColor(.sbBackground, for: .normal)
         
+        button.addTarget(self, action: #selector(didTapDetailedInfoButton), for: .touchUpInside)
+        
         return button
     }()
     
@@ -76,6 +79,7 @@ final class ScanningViewController: UIViewController,
         setupScanButton()
         setupDetailedInfoButton()
         setupAllergensTextView()
+        setupBackwardButton()
         
         presenter.setupScanning {
             DispatchQueue.main.async {
@@ -90,7 +94,8 @@ final class ScanningViewController: UIViewController,
     
     // MARK: UI setup
     // Updating information about allergens after scanning barcode
-    func updateAllergensInfo(for product: Allergens) {
+    func updateAllergensInfo(for product: Allergens, code: String) {
+        self.barcode = code
         let name = product.name
         let allergens = product.allergens
         
@@ -213,10 +218,26 @@ final class ScanningViewController: UIViewController,
         ])
     }
     
+    private func setupBackwardButton() {
+        navigationController?.navigationBar.backIndicatorImage = UIImage(named: "back_button_black")
+        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: "back_button_black")
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        navigationItem.backBarButtonItem?.tintColor = .sbSilver
+    }
+    
     // Button actions
     @objc
     private func didTapScanButton() {
         presenter.didTapScanButton()
+    }
+    
+    @objc
+    private func didTapDetailedInfoButton() {
+        let productScreen = ProductViewController()
+//        productScreen.barcode = self.barcode
+        productScreen.barcode = "4607053473537"
+        
+        navigationController?.pushViewController(productScreen, animated: true)
     }
     
     func showAlert(title: String, message: String) {

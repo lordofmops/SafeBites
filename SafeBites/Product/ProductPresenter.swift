@@ -7,7 +7,7 @@ protocol ProductPresenterProtocol {
 final class ProductPresenter: ProductPresenterProtocol {
     weak var productVC: ProductViewProtocol?
     
-    private let productService = ProductService.shared
+    let productService = ProductService.shared
     
     init(productVC: ProductViewProtocol) {
         self.productVC = productVC
@@ -27,7 +27,7 @@ final class ProductPresenter: ProductPresenterProtocol {
                 switch result {
                 case .success(let product):
                     self.productVC?.didFetchProductInfo(product)
-                case .failure(let error):
+                case .failure(_):
                     self.productVC?.showErrorAlert(message: "Не получилось загрузить информацию о продукте")
                 }
             }

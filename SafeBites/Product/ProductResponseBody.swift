@@ -7,10 +7,9 @@ struct ProductResponseBody: Decodable {
     let russianName: String?
     let quantity: String?
     let brand: String?
-    let categories: [String]?
     let imageUrl: String?
     let ingredientsText: String?
-    let stores: [String]?
+    let stores: String?
     
     let energy: Double?
     let fat: Double?
@@ -22,21 +21,24 @@ struct ProductResponseBody: Decodable {
     let salt: Double?
     
     private enum CodingKeys: String, CodingKey {
+        case code
         case product
     }
     
     private enum ProductCodingKeys: String, CodingKey {
-        case code
         case allergens = "allergens_hierarchy"
         case defaultName = "product_name"
         case russianName = "product_name_ru"
         case quantity
         case brand = "brands"
-        case categories = "categories_hierarchy"
         case imageUrl = "image_url"
         case ingredientsText = "ingredients_text"
         case stores
         
+        case nutriments
+    }
+    
+    private enum NutrimentsCodingKeys: String, CodingKey {
         case energy = "energy_100g"
         case fat = "fat_100g"
         case saturatedFat = "saturated-fat_100g"
@@ -49,27 +51,27 @@ struct ProductResponseBody: Decodable {
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
         let productContainer = try container.nestedContainer(keyedBy: ProductCodingKeys.self, forKey: .product)
+        let nutrimentsContainer = try productContainer.nestedContainer(keyedBy: NutrimentsCodingKeys.self, forKey: .nutriments)
         
-        self.code = try productContainer.decode(String.self, forKey: .code)
+        self.code = try container.decode(String.self, forKey: .code)
+        
         self.allergens = try productContainer.decodeIfPresent([String].self, forKey: .allergens)
         self.defaultName = try productContainer.decodeIfPresent(String.self, forKey: .defaultName)
         self.russianName = try productContainer.decodeIfPresent(String.self, forKey: .russianName)
         self.quantity = try productContainer.decodeIfPresent(String.self, forKey: .quantity)
         self.brand = try productContainer.decodeIfPresent(String.self, forKey: .brand)
-        self.categories = try productContainer.decodeIfPresent([String].self, forKey: .categories)
         self.imageUrl = try productContainer.decodeIfPresent(String.self, forKey: .imageUrl)
         self.ingredientsText = try productContainer.decodeIfPresent(String.self, forKey: .ingredientsText)
-        self.stores = try productContainer.decodeIfPresent([String].self, forKey: .stores)
+        self.stores = try productContainer.decodeIfPresent(String.self, forKey: .stores)
         
-        self.energy = try productContainer.decodeIfPresent(Double.self, forKey: .energy)
-        self.fat = try productContainer.decodeIfPresent(Double.self, forKey: .fat)
-        self.saturatedFat = try productContainer.decodeIfPresent(Double.self, forKey: .saturatedFat)
-        self.carbohydrates = try productContainer.decodeIfPresent(Double.self, forKey: .carbohydrates)
-        self.sugars = try productContainer.decodeIfPresent(Double.self, forKey: .sugars)
-        self.fiber = try productContainer.decodeIfPresent(Double.self, forKey: .fiber)
-        self.proteins = try productContainer.decodeIfPresent(Double.self, forKey: .proteins)
-        self.salt = try productContainer.decodeIfPresent(Double.self, forKey: .salt)
+        self.energy = try nutrimentsContainer.decodeIfPresent(Double.self, forKey: .energy)
+        self.fat = try nutrimentsContainer.decodeIfPresent(Double.self, forKey: .fat)
+        self.saturatedFat = try nutrimentsContainer.decodeIfPresent(Double.self, forKey: .saturatedFat)
+        self.carbohydrates = try nutrimentsContainer.decodeIfPresent(Double.self, forKey: .carbohydrates)
+        self.sugars = try nutrimentsContainer.decodeIfPresent(Double.self, forKey: .sugars)
+        self.fiber = try nutrimentsContainer.decodeIfPresent(Double.self, forKey: .fiber)
+        self.proteins = try nutrimentsContainer.decodeIfPresent(Double.self, forKey: .proteins)
+        self.salt = try nutrimentsContainer.decodeIfPresent(Double.self, forKey: .salt)
     }
 }

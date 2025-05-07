@@ -1,7 +1,7 @@
 import AVFoundation
 
 protocol ScanningView: AnyObject {
-    func updateAllergensInfo(for: Allergens)
+    func updateAllergensInfo(for: Allergens, code: String)
     func showAlert(title: String, message: String)
 }
 
@@ -38,8 +38,8 @@ final class ScanningPresenter: ProductScannerDelegate {
                 guard let self = self else { return }
                 switch result {
                 case .success(let product):
-                    self.view?.updateAllergensInfo(for: product)
-                case .failure(let error):
+                    self.view?.updateAllergensInfo(for: product, code: barcode)
+                case .failure(_):
                     self.didFailScanning(with: "Ошибка загрузки данных")
                 }
             }

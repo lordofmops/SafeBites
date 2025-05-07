@@ -6,6 +6,8 @@ protocol RegistrationViewProtocol: AnyObject {
 }
 
 final class RegistrationViewController: UIViewController {
+    private var presenter: RegistrationPresenterProtocol?
+    
     // MARK: UI elements
     private lazy var logoLabel: UILabel = {
         let label = UILabel()
@@ -131,8 +133,6 @@ final class RegistrationViewController: UIViewController {
         button.addTarget(self, action: #selector(didTapRegisterButton), for: .touchUpInside)
         return button
     }()
-    
-    private var presenter: RegistrationPresenterProtocol?
     
     // MARK: Lifecycle
     override func viewDidLoad() {

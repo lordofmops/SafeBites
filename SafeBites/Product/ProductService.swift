@@ -9,6 +9,14 @@ final class ProductService: ProductServiceProtocol {
     static let shared = ProductService()
     
     private(set) var product: Product?
+    private(set) var isFavorite: Bool?
+    private(set) var doesMatchRestrictions: Bool?
+    private(set) var unmatchedTags: [String]?
+    
+    // TODO: для нормальной архитектуры можно убрать отсюда продукт и собирать его по инициализатору в презентере
+    private let restrictionsService = RestrictionsService.shared
+    private let authTokenStorage = AuthTokenStorage.shared
+    
     private var task: URLSessionTask?
     private var lastCode: String?
     
@@ -42,9 +50,18 @@ final class ProductService: ProductServiceProtocol {
                 
                 switch result {
                 case .success(let response):
-                    let product = Product(from: response)
-                    completion(.success(product))
-                    print("[INFO] Product with barcode \(barcode): \(product.name ?? "no name") successfully fetched")
+                    var product = Product(from: response)
+                    self.product = product
+                    if let token = self.authTokenStorage.token {
+                        self.checkProductSuitability(for: token, product: product) { updatedProduct in
+                            self.product = updatedProduct
+                            print("[INFO] Product with barcode \(barcode): \(product.name ?? "no name") successfully fetched with updated suitability")
+                            completion(.success(updatedProduct))
+                        }
+                    } else {
+                        print("[INFO] Product with barcode \(barcode): \(product.name ?? "no name") successfully fetched")
+                        completion(.success(product))
+                    }
                 case .failure(let error):
                     print("[ERROR] [ProductService/getProductInfo] Network request failed: \(error)")
                     completion(.failure(error))
@@ -56,5 +73,33 @@ final class ProductService: ProductServiceProtocol {
         }
         self.task = task
         task.resume()
+    }
+    
+    func checkProductSuitability(for token: String, product: Product, completion: @escaping (Product) -> Void) {
+        restrictionsService.getUserRestrictions(for: token) { [weak self] result in
+            guard let self else { return }
+            
+            DispatchQueue.main.async {
+                var updatedProduct = product
+                
+                switch result {
+                case .success(let userRestrictions):
+                    if !userRestrictions.isEmpty, let allergens = product.allergens {
+                        let allergyRestrictions = userRestrictions.filter { $0.type == "allergen" }
+                        let conflictAllergens = allergyRestrictions.filter { allergens.contains($0.tag) }
+                        
+                        updatedProduct.addRestrictionSuitability(
+                            doesMatchRestrictions: conflictAllergens.isEmpty,
+                            unmatchedTags: conflictAllergens.map(\.name)
+                        )
+                    } else {
+                        updatedProduct.addRestrictionSuitability(doesMatchRestrictions: true, unmatchedTags: nil)
+                    }
+                case .failure(_):
+                    print("[ERROR] [ProductService/checkProductSuitability] Failed to check product suitability")
+                }
+                completion(updatedProduct)
+            }
+        }
     }
 }
