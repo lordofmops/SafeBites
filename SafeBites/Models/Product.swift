@@ -10,6 +10,8 @@ struct Product {
     let brand: String?
     let imageUrl: String?
     let ingredientsText: String?
+    let veganSuitability: Suitability
+    let vegetarianSuitability: Suitability
     let stores: String?
     
     var isFavorite: Bool?
@@ -47,6 +49,29 @@ extension Product {
         self.isFavorite = isFavorite
         self.doesMatchRestrictions = doesMatchRestrictions
         self.unmatchedTags = unmatchedTags
+        
+        self.veganSuitability = {
+            let analysis = productResponseBody.ingredientsAnalysis ?? []
+            if analysis.contains("en:non-vegan") {
+                return .notSuitable
+            } else if analysis.contains("en:vegan"){
+                return .suitable
+            } else {
+                return .unknown
+            }
+        }()
+        
+        self.vegetarianSuitability = {
+            let analysis = productResponseBody.ingredientsAnalysis ?? []
+            
+            if analysis.contains("en:non-vegetarian") {
+                return .notSuitable
+            } else if analysis.contains("en:vegetarian"){
+                return .suitable
+            } else {
+                return .unknown
+            }
+        }()
     }
     
     mutating func addRestrictionSuitability(doesMatchRestrictions: Bool, unmatchedTags: [String]?) {
@@ -68,4 +93,10 @@ struct Nutriments {
     let fiber: Double?
     let proteins: Double?
     let salt: Double?
+}
+
+enum Suitability {
+    case suitable
+    case notSuitable
+    case unknown
 }

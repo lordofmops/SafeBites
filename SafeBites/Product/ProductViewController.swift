@@ -132,9 +132,9 @@ final class ProductViewController: UIViewController {
         ])
         
         contentView.addArrangedSubview(nameLabel)
-        contentView.addArrangedSubview(brandAndQuantityLabel)
         contentView.addArrangedSubview(productImageView)
         contentView.addArrangedSubview(favoriteButton)
+        contentView.addArrangedSubview(brandAndQuantityLabel)
         contentView.addArrangedSubview(restrictionReportView)
     }
     
@@ -207,6 +207,30 @@ final class ProductViewController: UIViewController {
         return returnString
         
     }
+    
+    private func ingredientsAnalysis(veganSuitability: Suitability, vegetarianSuitability: Suitability) -> String {
+        var returnString = ""
+        
+        if vegetarianSuitability == .notSuitable {
+            returnString += "Не подходит вегетарианцам"
+        } else if vegetarianSuitability == .suitable {
+            returnString += "Подходит вегетарианцам"
+        } else {
+            returnString += "Неизвестно соответствие для вегетарианцев"
+        }
+        
+        returnString += "\n"
+        
+        if veganSuitability == .notSuitable {
+            returnString += "Не подходит веганам"
+        } else if veganSuitability == .suitable {
+            returnString += "Подходит веганам"
+        } else {
+            returnString += "Неизвестно соответствие для веганов"
+        }
+        
+        return returnString
+    }
 
     private func formattedStores(_ stores: String) -> String {
         return stores.split(separator: ",").map { "\($0) — найти в доставке" }.joined(separator: "\n")
@@ -269,6 +293,9 @@ extension ProductViewController: ProductViewProtocol {
             let allergensLabel = makeInfoBlock(title: "Аллергены", value: allergens.joined(separator: ", "))
             contentView.addArrangedSubview(allergensLabel)
         }
+        
+        let ingredientsAnalysisLabel = makeInfoBlock(title: "Анализ ингредиентов", value: ingredientsAnalysis(veganSuitability: product.veganSuitability, vegetarianSuitability: product.vegetarianSuitability))
+        contentView.addArrangedSubview(ingredientsAnalysisLabel)
         
         if let stores = product.stores, !stores.isEmpty {
             let storesLabel = makeInfoBlock(title: "Магазины", value: formattedStores(stores))

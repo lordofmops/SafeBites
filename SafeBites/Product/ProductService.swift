@@ -84,17 +84,20 @@ final class ProductService: ProductServiceProtocol {
                 
                 switch result {
                 case .success(let userRestrictions):
-                    if !userRestrictions.isEmpty, let allergens = product.allergensTags {
-                        let allergyRestrictions = userRestrictions.filter { $0.type == "allergen" }
-                        let conflictAllergens = allergyRestrictions.filter { allergens.contains($0.tag) }
-                        
-                        updatedProduct.addRestrictionSuitability(
-                            doesMatchRestrictions: conflictAllergens.isEmpty,
-                            unmatchedTags: conflictAllergens.map(\.name)
-                        )
-                    } else {
-                        updatedProduct.addRestrictionSuitability(doesMatchRestrictions: true, unmatchedTags: nil)
+                    var conflictRestrictions: [Restriction] = []
+                    
+                    if let allergensTags = product.allergensTags {
+                        conflictRestrictions.append(contentsOf: userRestrictions.filter { allergensTags.contains($0.tag) })
                     }
+                    
+                    let veganRestriction = userRestrictions.filter { $0.tag == "vegan" || $0.tag == "vegetarian" }
+                    conflictRestrictions.append(contentsOf: veganRestriction)
+                    
+                    updatedProduct.addRestrictionSuitability(
+                        doesMatchRestrictions: conflictRestrictions.isEmpty,
+                        unmatchedTags: conflictRestrictions.map { $0.name }
+                    )
+                    
                 case .failure(_):
                     print("[ERROR] [ProductService/checkProductSuitability] Failed to check product suitability")
                 }
