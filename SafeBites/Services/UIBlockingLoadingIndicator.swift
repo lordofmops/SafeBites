@@ -8,9 +8,8 @@ final class UIBlockingProgressHUD {
     
     static func show() {
         window?.isUserInteractionEnabled = false
-        ProgressHUD.animationType = .circlePulseMultiple
-        ProgressHUD.colorHUD = .sbGray
-        ProgressHUD.colorAnimation = .lightGray
+        ProgressHUD.animationType = .quintupleDotDance
+        ProgressHUD.colorAnimation = .sbGray
         ProgressHUD.animate()
     }
     
