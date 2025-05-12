@@ -84,6 +84,34 @@ extension Product {
     }
 }
 
+extension Product {
+    init(fromSearch response: ProductSearchResponseBody) {
+        self.barcode = response.code
+        self.allergensTags = response.allergens
+        self.allergens = nil
+        self.name = response.russianName != nil
+            ? response.russianName
+            : response.defaultName
+        self.quantity = nil
+        self.brand = response.brand
+        self.imageUrl = response.imageUrl
+        self.ingredientsText = response.ingredientsText
+        self.veganSuitability = Suitability.fromAnalysis(response.ingredientsAnalysis, id: "en:vegan")
+        self.vegetarianSuitability = Suitability.fromAnalysis(response.ingredientsAnalysis, id: "en:vegetarian")
+        self.stores = nil
+
+        self.nutrients = Nutriments(
+            energy: nil, fat: nil, saturatedFat: nil,
+            carbohydrates: nil, sugars: nil, fiber: nil,
+            proteins: nil, salt: nil
+        )
+
+        self.isFavorite = nil
+        self.doesMatchRestrictions = nil
+        self.unmatchedTags = nil
+    }
+}
+
 struct Nutriments {
     let energy: Double?
     let fat: Double?
@@ -99,4 +127,11 @@ enum Suitability {
     case suitable
     case notSuitable
     case unknown
+
+    static func fromAnalysis(_ tags: [String]?, id: String) -> Suitability {
+        guard let tags else { return .unknown }
+        if tags.contains("en:\(id)") { return .suitable }
+        if tags.contains("en:non-\(id)") { return .notSuitable }
+        return .unknown
+    }
 }

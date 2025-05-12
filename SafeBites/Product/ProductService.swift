@@ -90,8 +90,15 @@ final class ProductService: ProductServiceProtocol {
                         conflictRestrictions.append(contentsOf: userRestrictions.filter { allergensTags.contains($0.tag) })
                     }
                     
-                    let veganRestriction = userRestrictions.filter { $0.tag == "vegan" || $0.tag == "vegetarian" }
-                    conflictRestrictions.append(contentsOf: veganRestriction)
+                    let veganRestriction = userRestrictions.filter { $0.tag == "vegan" }
+                    if product.veganSuitability == .notSuitable && !veganRestriction.isEmpty {
+                        conflictRestrictions.append(contentsOf: veganRestriction)
+                    }
+                    
+                    let vegetarianRestriction = userRestrictions.filter { $0.tag == "vegetarian" }
+                    if product.vegetarianSuitability == .notSuitable && !vegetarianRestriction.isEmpty {
+                        conflictRestrictions.append(contentsOf: vegetarianRestriction)
+                    }
                     
                     updatedProduct.addRestrictionSuitability(
                         doesMatchRestrictions: conflictRestrictions.isEmpty,

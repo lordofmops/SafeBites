@@ -12,8 +12,16 @@ final class TabBarController: UITabBarController {
             image: UIImage(systemName: "barcode.viewfinder"),
             selectedImage: UIImage(systemName: "barcode.viewfinder")
         )
+        
+        let searchViewController = SearchViewController()
+        let searchNavigationController = UINavigationController(rootViewController: searchViewController)
+        searchViewController.tabBarItem = UITabBarItem(
+            title: "Поиск",
+            image: UIImage(systemName: "magnifyingglass"),
+            selectedImage: UIImage(systemName: "magnifyingglass")
+        )
            
-        self.viewControllers = [scanningNavigationController]
+        self.viewControllers = [scanningNavigationController, searchNavigationController]
     }
     
     private func setupUI() {
@@ -22,6 +30,5 @@ final class TabBarController: UITabBarController {
         self.tabBar.layer.borderColor = UIColor.sbGray.cgColor
         self.tabBar.tintColor = .sbWhite
         self.tabBar.unselectedItemTintColor = .sbSilver
-
     }
 }
