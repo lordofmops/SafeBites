@@ -46,8 +46,8 @@
             filePath = "SafeBites/Product/ProductViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "131"
-            endingLineNumber = "131"
+            startingLineNumber = "133"
+            endingLineNumber = "133"
             landmarkName = "setupLayout()"
             landmarkType = "7">
          </BreakpointContent>

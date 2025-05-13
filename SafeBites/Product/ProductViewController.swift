@@ -16,6 +16,8 @@ final class ProductViewController: UIViewController {
         }
     }
     
+    var product: Product?
+    
     private var presenter: ProductPresenterProtocol?
     
     // MARK: - UI elements
@@ -140,8 +142,19 @@ final class ProductViewController: UIViewController {
     
     // MARK: - Actions
     
-    @objc private func didTapFavorite() {
-        // TODO: избранное
+    @objc
+    private func didTapFavorite() {
+        guard let presenter, let product else { return }
+        
+        if presenter.isFavorite(barcode: product.barcode) {
+            presenter.deleteFromFavorites(product)
+            self.favoriteButton.setImage(UIImage(systemName: "heart"), for: .normal)
+            self.favoriteButton.setTitle("Добавить в избранное", for: .normal)
+        } else {
+            presenter.addToFavorite(product)
+            self.favoriteButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+            self.favoriteButton.setTitle("Удалить из избранного", for: .normal)
+        }
     }
     
     // MARK: - Helpers
@@ -239,9 +252,13 @@ final class ProductViewController: UIViewController {
 
 extension ProductViewController: ProductViewProtocol {
     func didFetchProductInfo(_ product: Product) {
-        if let isFavorite = product.isFavorite {
+        self.product = product
+        
+        if let isFavorite = presenter?.isFavorite(barcode: product.barcode) {
             let imageName = isFavorite ? "heart.fill" : "heart"
+            let buttonTitle = isFavorite ? "Удалить из избранного" : "Добавить в избранное"
             self.favoriteButton.setImage(UIImage(systemName: imageName), for: .normal)
+            self.favoriteButton.setTitle(buttonTitle, for: .normal)
         }
         
         if let imageUrl = product.imageUrl, let url = URL(string: imageUrl) {

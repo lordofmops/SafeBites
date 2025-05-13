@@ -15,7 +15,6 @@ final class SearchViewController: UIViewController {
     private var currentQuery: String?
     
     private var currentPage: Int = 1
-    private var totalPages: Int = 10
 
     // MARK: - UI
 
@@ -75,7 +74,7 @@ final class SearchViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        presenter = SearchPresenter(view: self)
+        presenter = SearchPresenter(searchVC: self)
         presenter?.searchProducts(query: nil, filters: nil, page: 1)
         
         setupUI()
@@ -161,6 +160,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductCell", for: indexPath) as? ProductCell else {
             return UICollectionViewCell()
         }
+        cell.delegate = self
         cell.configure(with: products[indexPath.item])
         return cell
     }
@@ -175,6 +175,12 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = (collectionView.bounds.width - 12) / 2
         return CGSize(width: width, height: 180)
+    }
+}
+
+extension SearchViewController: ProductCellDelegate {
+    func didTapFavoriteButton(on cell: ProductCell) {
+        
     }
 }
 

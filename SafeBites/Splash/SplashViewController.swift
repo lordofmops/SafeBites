@@ -4,10 +4,13 @@ final class SplashViewController: UIViewController {
     // MARK: - Private variables
     private let authService = AuthService.shared
     private let authTokenStorage = AuthTokenStorage.shared
+    private var presenter: SplashPresenterProtocol?
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        presenter = SplashPresenter()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -19,10 +22,10 @@ final class SplashViewController: UIViewController {
     private func checkAuthorization() {
         if let _ = authTokenStorage.token {
             UIBlockingProgressHUD.show()
-//            self.fetchProfile {
+            presenter?.getFavorites {
                 UIBlockingProgressHUD.dismiss()
                 self.switchToTabBarController()
-//            }
+            }
             
         } else {
             showAuthScreen()

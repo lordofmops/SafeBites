@@ -9,7 +9,6 @@ final class ProductService: ProductServiceProtocol {
     static let shared = ProductService()
     
     private(set) var product: Product?
-    private(set) var isFavorite: Bool?
     private(set) var doesMatchRestrictions: Bool?
     private(set) var unmatchedTags: [String]?
     

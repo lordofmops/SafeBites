@@ -36,7 +36,7 @@ final class ProfileService: ProfileServiceProtocol {
                 
                 switch result {
                 case .success(let response):
-                    var user = User(from: response)
+                    let user = User(from: response)
                     
                     completion(.success(user))
                     print("[INFO] User profile loaded successfully")
@@ -80,7 +80,7 @@ final class ProfileService: ProfileServiceProtocol {
                 
                 switch result {
                 case .success(let response):
-                    var user = User(from: response)
+                    let user = User(from: response)
                     
                     completion(.success(user))
                     print("[INFO] Username updated successfully")
@@ -139,9 +139,6 @@ final class ProfileService: ProfileServiceProtocol {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let requestBody: [String: Any] = [
-            "restriction_id": id
-        ]
         do {
             request.httpBody = try JSONEncoder().encode(["restriction_id": id])
         } catch(let error) {

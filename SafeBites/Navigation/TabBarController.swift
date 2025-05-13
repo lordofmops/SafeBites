@@ -21,6 +21,14 @@ final class TabBarController: UITabBarController {
             selectedImage: UIImage(systemName: "magnifyingglass")
         )
         
+        let favoritesViewController = FavoritesViewController()
+        let favoritesNavigationController = UINavigationController(rootViewController: favoritesViewController)
+        favoritesViewController.tabBarItem = UITabBarItem(
+            title: "Избранное",
+            image: UIImage(systemName: "heart"),
+            selectedImage: UIImage(systemName: "heart")
+        )
+        
         let profileViewController = ProfileViewController()
         let profileNavigationController = UINavigationController(rootViewController: profileViewController)
         profileViewController.tabBarItem = UITabBarItem(
@@ -29,7 +37,7 @@ final class TabBarController: UITabBarController {
             selectedImage: UIImage(systemName: "person.crop.circle")
         )
            
-        self.viewControllers = [scanningNavigationController, searchNavigationController, profileNavigationController]
+        self.viewControllers = [scanningNavigationController, searchNavigationController, favoritesNavigationController, profileNavigationController]
     }
     
     private func setupUI() {

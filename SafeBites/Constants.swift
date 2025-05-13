@@ -9,5 +9,6 @@ enum Constants {
     static let userRestrictionsRoute = "me/restrictions/"
     static let profileRoute = "me/user/profile"
     static let deleteProfileRoute = "me/user/"
+    static let favoritesRoute = "me/favorites"
     static let httpHeader = "SafeBites/1.0 (dadrobysheva@edu.hse.ru)"
 }
