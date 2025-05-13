@@ -8,6 +8,7 @@ protocol SearchServiceProtocol {
 final class SearchService: SearchServiceProtocol {
     static let shared = SearchService()
     var totalPages: Int = 10
+    var page_size: Int = 20
 
     private init() {}
 
@@ -19,7 +20,7 @@ final class SearchService: SearchServiceProtocol {
             URLQueryItem(name: "json", value: "1"),
             URLQueryItem(name: "search_simple", value: "1"),
             URLQueryItem(name: "fields", value: "code,product_name,product_name_ru,brands,image_front_url,ingredients_text,allergens_tags,ingredients_analysis_tags,quantity,categories_tags"),
-            URLQueryItem(name: "page_size", value: "20"),
+            URLQueryItem(name: "page_size", value: page_size.description),
             URLQueryItem(name: "page", value: page.description)
         ]
 
@@ -88,8 +89,8 @@ final class SearchService: SearchServiceProtocol {
 
             do {
                 let result = try JSONDecoder().decode(OpenFoodSearchResponse.self, from: data)
-                print("[INFO] Decoded \(result.products.count) products, total page count \(result.page_count)")
-                self.totalPages = result.page_count
+                self.totalPages = Int(ceil(Double(result.count)/Double(self.page_size)))
+                print("[INFO] Decoded \(result.products.count) products, total page count \(self.totalPages), total item count \(result.count)")
                 let products = result.products.map{ Product(fromSearch: $0) }
                 completion(.success(products))
             } catch {

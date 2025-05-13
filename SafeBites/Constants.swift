@@ -7,5 +7,7 @@ enum Constants {
     static let loginRoute = "auth/login"
     static let registerRoute = "auth/register"
     static let userRestrictionsRoute = "me/restrictions/"
+    static let profileRoute = "me/user/profile"
+    static let deleteProfileRoute = "me/user/"
     static let httpHeader = "SafeBites/1.0 (dadrobysheva@edu.hse.ru)"
 }

@@ -20,8 +20,16 @@ final class TabBarController: UITabBarController {
             image: UIImage(systemName: "magnifyingglass"),
             selectedImage: UIImage(systemName: "magnifyingglass")
         )
+        
+        let profileViewController = ProfileViewController()
+        let profileNavigationController = UINavigationController(rootViewController: profileViewController)
+        profileViewController.tabBarItem = UITabBarItem(
+            title: "Профиль",
+            image: UIImage(systemName: "person.crop.circle"),
+            selectedImage: UIImage(systemName: "person.crop.circle")
+        )
            
-        self.viewControllers = [scanningNavigationController, searchNavigationController]
+        self.viewControllers = [scanningNavigationController, searchNavigationController, profileNavigationController]
     }
     
     private func setupUI() {
